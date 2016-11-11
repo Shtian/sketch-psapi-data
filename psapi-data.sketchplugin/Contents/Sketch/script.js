@@ -2,19 +2,22 @@ var onRun = function(context) {
   var selection = context.selection;
 
   var plugs = getPlugsFromAPI();
-
+  var currentPlugImage = 0;
+  var currentPlugText = 0;
   for (var j = 0; j < selection.length; j++) {
     layer = selection[j];
     if (isLayerText(layer)) {
-      layer.setStringValue(plugs[j].title);
+      layer.setStringValue(plugs[currentPlugText].title);
+      currentPlugText++;
     } else if (isLayerImage(layer) || isLayerShape(layer)) {
-      var imagedata = getImageFromRemoteURL(plugs[j].image)
+      var imagedata = getImageFromRemoteURL(plugs[currentPlugImage].image)
       var fill = layer.style().fills().firstObject()
       if (!fill) fill = layer.style().addStylePartOfType(0);
       fill.setFillType(4);
       fill.setPatternFillType(1);
       fill.setIsEnabled(true);
       fill.setImage(imagedata);
+      currentPlugImage++;
     }
   }
 
