@@ -1,0 +1,22 @@
+{
+  "name": "PSAPI Data",
+  "description": "Helpful (?) plugin for NRK designers.",
+  "author": "Stian Haga",
+  "authorEmail": "hagastian@gmail.com",
+  "version": "0.0.1",
+  "identifier": "io.nrk.sketch.psapi-data",
+  "commands": [
+    {
+      "name": "PSAPI Data",
+      "identifier": "psapi-data",
+      "shortcut": "ctrl alt cmd t",
+      "script": "script.js"
+    }
+  ],
+  "menu": {
+    "isRoot": true,
+    "items": [
+      "psapi-data"
+    ]
+  }
+}
