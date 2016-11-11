@@ -1,24 +1,14 @@
 var onRun = function(context) {
-  var doc = context.document;
   var selection = context.selection;
 
-  var result = getJSON("http://psapi.nrk.no/medium/tv/plugs?maxnumber=50");
-  var plugs = [];
-  for (var i = 0; i < result.length; i++) {
-    var plug = {
-      image: result[i].image.webImages[5].imageUrl,
-      title: result[i].title
-    };
-    plugs.push(plug);
-  }
+  var plugs = getPlugsFromAPI();
 
   for (var j = 0; j < selection.length; j++) {
     layer = selection[j];
     if (isLayerText(layer)) {
       layer.setStringValue(plugs[j].title);
     } else if (isLayerImage(layer) || isLayerShape(layer)) {
-      var url = getImageFromRemoteURL(plugs[j].image)
-      var imagedata = MSImageData.alloc().initWithImage_convertColorSpace(url, false);
+      var imagedata = getImageFromRemoteURL(plugs[j].image)
       var fill = layer.style().fills().firstObject()
       if (!fill) fill = layer.style().addStylePartOfType(0);
       fill.setFillType(4);
@@ -47,6 +37,21 @@ var onRun = function(context) {
     return JSON.parse(NSString.alloc().initWithData_encoding(response, NSUTF8StringEncoding));
   }
 
+  function getPlugsFromAPI() {
+    var result = getJSON("http://psapi.nrk.no/medium/tv/plugs?maxnumber=50");
+    var plugs = [];
+    for (var i = 0; i < result.length; i++) {
+      var currentPlug = result[i];
+      var title = currentPlug.seriesTitle || currentPlug.programTitle;
+      var plug = {
+        image: currentPlug.image.webImages[5].imageUrl,
+        title: title
+      };
+      plugs.push(plug);
+    }
+    return plugs;
+  }
+
   function getImageFromRemoteURL(urlString) {
     //get data from url
     var url = NSURL.URLWithString(urlString)
@@ -55,16 +60,6 @@ var onRun = function(context) {
 
     //create image from data
     var image = NSImage.alloc().initWithData(data)
-    return image
-  }
-
-  // Refreshes text layer boundaries after setting text.
-  function refreshTextLayer(layer) {
-    layer.setHeightIsClipped(0);
-    layer.adjustFrameToFit();
-    layer.select_byExpandingSelection(true, false);
-    layer.setIsEditingText(true);
-    layer.setIsEditingText(false);
-    layer.select_byExpandingSelection(false, false);
+    return MSImageData.alloc().initWithImage_convertColorSpace(image, false);
   }
 }
